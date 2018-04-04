@@ -15,7 +15,7 @@ containerFixed.appendChild(containerAbsolute);
 
 for (var i = 0; i < 50; i++) {
   var image = document.createElement('img');
-  image.src = 'cdn/unicorn_army/rainbow_dash.gif';
+  image.src = 'https://qoomon.github.io/cdn/unicorn_army/rainbow_dash.gif';
   image.classList.add = 'unicorn';
   image.style.position = "absolute";
   image.style.bottom = "0px";
