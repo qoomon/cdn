@@ -1,1 +1,1 @@
-# https://qoomon.github.io/cdn/${file}
+# https://qoomon.github.io/cdn/FILE
