@@ -2,7 +2,11 @@
 
 ![comment](./meeting-icons-background-comment.png)
 ![new topic](./meeting-icons-background-new-topic.png)
-![losing focus](./meeting-icons-background-losing-focus.png)
+![focus](./meeting-icons-background-focus.png)
+---
+![accepted](./meeting-icons-background-accepted.png)
+![abstained](./meeting-icons-background-abstained.png)
+![rejected](./meeting-icons-background-rejected.png)
 
 ---
 #### Icons
