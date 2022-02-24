@@ -1,6 +1,5 @@
 # [Video Call Backgrounds](https://qoomon.github.io/cdn/video-call-backgrounds)
 
-![comment](./meeting-icons-background-comment.png)
 ![new topic](./meeting-icons-background-new-topic.png)
 ![focus](./meeting-icons-background-focus.png)
 ---
