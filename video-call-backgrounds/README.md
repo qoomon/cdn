@@ -6,6 +6,11 @@
 
 ____
 
+
+![thank you](./meeting-icons-background-thank-you.png)
+
+____
+
 ![accepted](./meeting-icons-background-accepted.png)
 ![abstained](./meeting-icons-background-abstained.png)
 ![rejected](./meeting-icons-background-rejected.png)
