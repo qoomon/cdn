@@ -3,9 +3,10 @@
 
 ![new topic](./meeting-icons-background-new-topic.png)
 ![focus](./meeting-icons-background-focus.png)
+![question](./meeting-icons-background-question.png)
+![comment](./meeting-icons-background-comment.png)
 
 ____
-
 
 ![thank you](./meeting-icons-background-thank-you.png)
 
