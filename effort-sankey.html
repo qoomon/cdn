@@ -1,0 +1,93 @@
+<html>
+  <head>
+    <title>JavaScript Sankey Diagram</title>
+    <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-core.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-sankey.min.js"></script>
+    <style type="text/css">      
+      html, body, #container { 
+        width: 100%; height: 100%; margin: 0; padding: 0; 
+      } 
+    </style>
+  </head>
+  <body>  
+    <div id="container"></div>
+    <script>
+      anychart.onDocumentReady(function () {
+  
+        // add data
+        const data = [
+          {from: "Team A", to: "OKR1", value: 30},
+          {from: "Team A", to: "OKR2", value: 60},
+          {from: "Team A", to: "OKR3", value: 10},
+          {from: "Team A", to: null, value: 10},
+          
+          {from: "Team B", to: "OKR1", value: 20},
+          {from: "Team B", to: "OKR2", value: 0},
+          {from: "Team B", to: "OKR3", value: 80},
+          
+          {from: "Team C", to: "OKR1", value: 20},
+          {from: "Team C", to: "OKR2", value: 0},
+          {from: "Team C", to: "OKR3", value: 80},
+        ];
+  
+        // create a sankey diagram instance
+        let chart = anychart.sankey();
+        // set the chart container id
+        chart.container("container");
+        // add a title and customize it
+        chart
+          .title()
+          .enabled(true)
+          .useHtml(true)
+          .text(`
+            <span style = "color: #2b2b2b; font-size:20px;">Efforts Split</span>
+            `);
+
+        // load the data to the sankey diagram instance
+        chart.data(data);        
+  
+        // customize the nodes:
+        // set the width
+        chart.nodeWidth("20%");
+        // set the padding
+        chart.nodePadding(30);
+        // customize the labels
+        chart.node().normal().labels().fontSize(14);
+        chart.node().labels().useHtml(true);
+        chart.node().labels()
+          .format("<span style='font-weight:bold'>{%name}</span><br>{%value}");
+
+        // customize the links
+        chart.flow({
+          normal: {
+            fill() {
+              return anychart.color.lighten(this.sourceColor, 0.5) + " " + 0.3;
+            }
+          },
+          hovered: {
+            fill() {
+              return this.sourceColor + " " + 0.8;
+            }
+          }
+        });
+        
+        chart.dropoff({
+          normal: {
+            fill() {
+              return "gray"+ " " + 0.2;
+            }
+          },
+          hovered: {
+            fill() {
+              return "gray" + " " + 0.4;
+            }
+          }
+        })        
+
+        // draw the chart
+        chart.draw();
+  
+      });
+    </script>
+  </body>
+</html>
