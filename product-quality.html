@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Product Quality</title>
+    <script>
+        const productQualityConfig = {
+            rating: {min: 0, max: 5},
+            categories: [
+                'Functional Suitability',
+                'Performance Efficiency',
+                'Compatibility',
+                'Usability',
+                'Reliability',
+                'Security',
+                'Maintainability',
+                'Portability',
+            ],
+        }
+
+        const products = [
+            {
+                name: 'Mario', owner: "Team A", link: "https://example.com",
+                updatedDate: '2023-11-02',
+                qualities: {
+                    'Functional Suitability': {rating: 4},
+                    'Performance Efficiency': {rating: 4},
+                    'Compatibility': {rating: 5},
+                    'Usability': {rating: 4},
+                    'Reliability': {rating: 4},
+                    'Security': {rating: 4},
+                    'Maintainability': {rating: 4},
+                    'Portability': {rating: 2}
+                }
+            },
+            {
+                name: 'Donkey Kong', owner: "Team B", link: "https://example.com",
+                updatedDate: '2023-11-02',
+                qualities: {
+                    'Functional Suitability': {rating: 4},
+                    'Performance Efficiency': {rating: 5},
+                    'Compatibility': {rating: 4},
+                    'Usability': {rating: 4},
+                    'Reliability': {rating: 3},
+                    'Security': {rating: 5},
+                    'Maintainability': {rating: 4},
+                    'Portability': {rating: 5}
+                }
+            },
+            {
+                name: 'Rocket', owner: "Team B", link: "https://example.com",
+                updatedDate: '2023-11-02',
+                qualities: {
+                    'Functional Suitability': {rating: 5},
+                    'Performance Efficiency': {rating: 4},
+                    'Compatibility': {rating: 4},
+                    'Usability': {rating: 3},
+                    'Reliability': {rating: 5},
+                    'Security': {rating: 5},
+                    'Maintainability': {rating: 4},
+                    'Portability': {rating: 5}
+                }
+            },
+            {
+                name: 'Groot', owner: "Team C", link: "https://example.com",
+                updatedDate: '2023-11-02',
+                qualities: {
+                    'Functional Suitability': {rating: 3},
+                    'Performance Efficiency': {rating: 5},
+                    'Compatibility': {rating: 4},
+                    'Usability': {rating: 4},
+                    'Reliability': {rating: 5},
+                    'Security': {rating: 5},
+                    'Maintainability': {rating: 5},
+                    'Portability': {rating: 5}
+                }
+            },
+        ];
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+
+        body {
+            background: #100c2a;
+            color: whitesmoke;
+            /*font-family: Roboto, sans-serif;*/
+            font-family: 'Patrick Hand', cursive;
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            padding: 2em 1em 1em;
+        }
+
+        h2 {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            padding: 2em 1em 1em;
+        }
+
+        .product-header {
+            text-align: center;
+        }
+
+        .product-owner {
+            text-align: center;
+            font-size: 0.8rem;
+            padding-top: 0.0rem;
+        }
+        .product-updated-date {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 0.8rem;
+        }
+
+        #products-overview {
+            position: relative;
+            height: 600px;
+        }
+
+        .quality-description {
+            text-align: center;
+            padding: 0 1em 3em;
+        }
+
+        .products-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            row-gap: 3em;
+            padding: 0 2em;
+        }
+
+        .chart {
+            position: relative;
+            height: 340px;
+            min-width: 420px;
+        }
+
+        .chart {
+            padding: 3em;
+        }
+
+        .chart > div:nth-child(1) {
+            overflow: visible !important;
+        }
+
+        .chart > div:nth-child(1) > svg {
+            overflow: visible !important;
+        }
+
+
+    </style>
+</head>
+<body>
+<h1><a href="?">JDS Product Qualities</a></h1>
+<div class="quality-description"><b>From 0</b> an unacceptable quality level<br> <b>To 5</b> an appropriate quality
+    level
+</div>
+
+<div id="products-selection" class="products-container" style="display: none;">
+</div>
+
+<div id="products-view" style="display: none;">
+    <div id="products-overview"></div>
+    <h2>Products</h2>
+    <div id="products-all" class="products-container"></div>
+</div>
+
+<script src="https://fastly.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+    let coordinateSystem = 'polar';
+    let inverseRatings = false;
+    
+    const query = {
+      product: new URLSearchParams(window.location.search).get('product'),
+      owner: new URLSearchParams(window.location.search).get('owner'),
+    };
+    
+    if(query.product || query.owner) {
+        const selectedProducts = products.filter(product => {
+          if(query.product)  return product.name === query.product;
+          if(query.owner)  return product.owner === query.owner;
+        });
+        
+        const productsSelectionViewElement = document.getElementById('products-selection');
+        productsSelectionViewElement.style.display = '';
+        
+        for (const product of selectedProducts) {
+           const productElement = createProductComponent(product)
+           productsSelectionViewElement.append(productElement);
+        }
+        
+        redrawChart()
+        document.body.onclick = () => {
+            inverseRatings = !inverseRatings;
+            console.log("change coordinate system to", coordinateSystem);
+            redrawChart();
+        }
+    
+        function redrawChart() {
+          const productElements = productsSelectionViewElement.querySelectorAll(':scope > div > .chart');
+          for (const [index, product] of selectedProducts.entries()) {
+              initQualityChart(productElements[index], product, coordinateSystem);
+          }
+        }
+    } else {
+      const productsViewElement = document.getElementById('products-view');
+      productsViewElement.style.display = '';
+      
+      const productsOverviewElement = document.getElementById('products-overview');
+      productsOverviewElement.classList.add('chart');
+  
+      const productsAllElement = document.getElementById('products-all');
+      for (const product of products) {
+         const productElement = createProductComponent(product)
+         productsAllElement.append(productElement);
+      }
+  
+      redrawCharts()
+      document.body.onclick = () => {
+          inverseRatings = !inverseRatings;
+          console.log("change coordinate system to", coordinateSystem);
+          redrawCharts();
+      }
+  
+      function redrawCharts() {
+          initQualityChart(productsOverviewElement, products, coordinateSystem);
+          const productElements = productsAllElement.querySelectorAll(':scope > div > .chart');
+          for (const [index, product] of products.entries()) {
+              initQualityChart(productElements[index], product, coordinateSystem);
+          }
+      }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+    
+    function createProductComponent(product){
+      const productElement = document.createElement('div');
+      productElement.setAttribute("product", product.name);
+     
+      // header
+      const headerElement = document.createElement('h3');
+      headerElement.classList.add('product-header');
+      headerElement.innerText = product.name;
+      addLink(headerElement, '?product=' + encodeURIComponent(product.name));
+      if (product.link) {
+          const externalLinkElement = document.createElement('a');
+          externalLinkElement.href = product.link;
+          const externalLinkIconElement = document.createElement('img');
+          externalLinkIconElement.style.height = '1.5em';
+          externalLinkIconElement.style.filter= 'invert(0.5)';
+          externalLinkIconElement.style.position = 'absolute';
+          externalLinkIconElement.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAQAAABpN6lAAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAACYktHRAD/h4/MvwAAAAd0SU1FB+gECwg3Gnc0GngAAAP6SURBVHja7ZtPbFRFHMc/tV2FrdC0ElwDxj/RoBT1ZohaUg4EjfFPQjx41WAgiEQa401jYiImPYsejNaLBw+okYNwRLQJ8SBhaw8i/kkoQUtJxW7ZsrserI+322737cx0f6/u9/Mus5udme/3O/vmTd68B0IIIYQQQgghhBBCCCGEEEII0QZ0WAuYJ8N2HuOmJmuV+ZVj/GwtPgT7mabidOR53Fq8PxsYd7RfocIYd7t3fYO1dwB66POofT87V3oA5xnzqn+Xe9VOa+8AzPIT/fRSZo5rDY4SXQvqj3LMtesu14qB+YanubfhVaBChpd5KmTHaQkALnIxwa+G2B622/QEkETrEG+yOmyj6ZgEzeyvnABq7Zc4TdFaVCvtv85M1eLnQ3ZxJfo0bC2w1fY/Zi3bYt/9rwNYzH4fMNgeAdSz3yYB1LffFgEsZT9YACEXQp2sZyO3cGPC35f5hTHKdZXVXvdHOMilgHqDsoZn+YQfucwsxcTHBEN1hmDp0YeUnQIDHGXW6WbGJFud7KcogE5eYsLjfs4LTvZTE0AH+2IrsuaPGXY42U9NAE8y6WG/yHtkneyn5CqQ440qeVOMcoZpKgnqdlBinOPMVKlZUTM/HKgaq68ZYJVHa8lHH1JxCvRwMib2CLd6tdac/VQEsJXLkYRz9LfUfrAAfG6I9NMTlT8n72Xf7Nz3CeD2qFTi25bbD7Sr6RNAd1SaY9K5lYzj6E9zNSq79+7FcGw5M+jcyh4KTZ37/5Hl0/kaZ3nI3YT1bfE+dlddOkd4lalENWd4jd94mAne5wcb8SH+ARs4WzX6vU3WX+27uWd9W/wPRqPyCAcTjv51CpT8BFifAkXeIsujXOUz3q6a+roZYCN5TnHNWGNdwkyC0M1m7qkZijV8QIEKlxgy/5cuewCLsYvifNvnPdeYDUhruveRmS+t4852DCA+ty+rxrQG0DIUgLUAaxSAtQBrFIC1AGsUgLUAaxSAtQBrFIC1AGsUgLUAaxSAtQBrFECgdtLyAmZLA7i+OdnFzYF1rY1K5Vg/KQvgQlTK8GBQVavYEpULVnu/jdkRe0bjFOsDtjzIVNRynpy10XrcRj6SWeadYNtsOY7HNkw/SvNE/W5MaIFDno9J/csDfFnVatC3BBfiN3v3c5Q7ok8VvucLTnPFWcs6HuGZWIvwFc87t9eCAOAAwzV//TlKiR6UXExLpma3f4LnOLmc9v3JctjjUdmlj7940dpeEno5zNwy2P+TvSl5tbshWV7hXFDzZb7jCWtbzbGZQ5ypedbT7ZjiBPuDXE8SEXINn2MLm8glfmdoIX/zO3nGmW6VfSGEEEIIIYQQQgghhBBCCCGEaBP+AZeIJaKtEkEuAAAAMXRFWHRDb21tZW50AFBORyBlZGl0ZWQgd2l0aCBodHRwczovL2V6Z2lmLmNvbS9vcHRpcG5n0r3WLgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyNC0wNC0xMVQwODo1NTowMyswMDowMGwODDQAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjQtMDQtMTFUMDg6NTU6MDMrMDA6MDAdU7SIAAAAKHRFWHRkYXRlOnRpbWVzdGFtcAAyMDI0LTA0LTExVDA4OjU1OjI2KzAwOjAwWlu9jQAAABJ0RVh0U29mdHdhcmUAZXpnaWYuY29toMOzWAAAAABJRU5ErkJggg==';
+          externalLinkElement.append(externalLinkIconElement);
+          headerElement.append(externalLinkElement);
+      }
+      productElement.append(headerElement);
+
+      // subheader
+      const subheaderElement = document.createElement('div');
+      subheaderElement.classList.add('product-owner');
+      subheaderElement.innerText = `${product.owner}`;
+      addLink(subheaderElement, '?owner=' + encodeURIComponent(product.owner));
+      productElement.append(subheaderElement);
+
+      // subheader
+      const updatedDateElement = document.createElement('div');
+      updatedDateElement.classList.add('product-updated-date');
+      updatedDateElement.innerText = `Updated on ${product.updatedDate}`;
+      productElement.append(updatedDateElement);
+
+      // chart
+      const chartElement = document.createElement('div');
+      chartElement.classList.add('chart');
+      productElement.append(chartElement);
+      
+      return productElement
+    }
+    
+    function initQualityChart(dom, products, coordinateSystem = 'polar') {
+        if (!Array.isArray(products)) {
+            products = [products];
+        }
+
+        const chart = echarts.init(dom, 'dark', {renderer: 'svg', useDirtyRect: false});
+        chart.clear();
+        const polarAxisOptions = {
+            angleAxis: {
+                type: 'category',
+                data: productQualityConfig.categories.map(category => ({
+                    value: category.split(" ").join("\n"),
+                    textStyle: {
+                        fontSize: "0.8rem",
+                    },
+                })),
+                axisLine: {
+                    lineStyle: {
+                        width: 2,
+                    }
+                },
+            },
+            radiusAxis: {
+                min: productQualityConfig.rating.min,
+                max: productQualityConfig.rating.max,
+                axisLine: false,
+                axisLabel: {
+                    show: false
+                },
+                inverse: !inverseRatings, // TODO
+            },
+            polar: {
+                radius: ['8%', '100%'],
+            },
+        };
+
+        const cartesian2dAxisOptions = {
+            xAxis: {
+                type: 'category',
+                data: productQualityConfig.categories.map(category => ({
+                    value: category.split(" ").join("\n"),
+                    textStyle: {
+                        fontSize: "0.8rem",
+                    },
+                })),
+                axisLine: {
+                    lineStyle: {
+                        width: 2,
+                    }
+                },
+            },
+            yAxis: {
+                min: productQualityConfig.rating.min,
+                max: productQualityConfig.rating.max,
+            },
+        }
+
+        let domComputedStyle = window.getComputedStyle(dom);
+
+
+        chart.setOption({
+            tooltip: {
+                trigger: 'axis',
+            },
+            textStyle: {
+                fontFamily: domComputedStyle.getPropertyValue('font-family'),
+            },
+            ...(coordinateSystem === 'cartesian2d' ? cartesian2dAxisOptions : polarAxisOptions),
+            series: [
+                ...products.map(product => ({
+                    type: 'bar',
+                    coordinateSystem,
+                    name: product.name,
+                    data: productQualityConfig.categories
+                        .map((category) => ({
+                            value: inverseRatings
+                                ? productQualityConfig.rating.max - Math.floor(product.qualities[category]?.rating ?? productQualityConfig.rating.min)
+                                : Math.floor(product.qualities[category]?.rating ?? productQualityConfig.rating.max),
+                            itemStyle: {
+                                color: product.qualities[category]?.rating
+                                    ? undefined
+                                    : `rgba(255, 255, 255, ${inverseRatings ? 0.3 : 0.1})`,
+                            },
+                        })),
+                    itemStyle: {
+                        borderRadius: "8",
+                    },
+                    colorBy: 'data',
+                    barGap: '2%',
+                    barCategoryGap: '5%',
+                })),
+            ]
+        });
+
+
+        window.addEventListener('resize', chart.resize);
+        return chart;
+    }
+
+    function addLink(element, href) {
+        const linkElement = document.createElement('a');
+        linkElement.innerHTML = element.innerHTML;
+        linkElement.href = href
+        element.innerHTML = linkElement.outerHTML;
+    }
+</script>
+
+<!-- GitHub Corner -->
+<a href="https://github.com/JH-JDS/sandbox/blob/main/product-quality.html" class="github-corner" aria-label="View source on GitHub">
+    <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#726296; color:#151515; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg>
+    <style scopped>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+</a>
+</body>
+</html>
